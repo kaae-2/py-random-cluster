@@ -41,13 +41,6 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="Path to a gzipped CSV/TSV matrix file provided by Omnibenchmark.",
     )
     parser.add_argument(
-        "--data.true_labels",
-        dest="data_true_labels",
-        required=False,
-        type=Path,
-        help="Unused placeholder for compatibility with pipelines supplying true labels.",
-    )
-    parser.add_argument(
         "--output_dir",
         required=True,
         type=Path,
@@ -86,7 +79,7 @@ def main(argv: list[str]) -> int:
     clustered = assign_random_clusters(df, args.num_clusters, args.seed)
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = args.output_dir / f"{args.name}_random_clusters.csv.gz"
+    output_file = args.output_dir / f"{args.name}_ks_range.labels.gz"
     clustered.to_csv(output_file, index=False, compression="gzip")
     return 0
 
