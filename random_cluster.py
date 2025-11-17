@@ -10,16 +10,20 @@ import numpy as np
 import pandas as pd
 
 
-def assign_random_clusters(df: pd.DataFrame, num_clusters: int, seed: int | None = None) -> pd.DataFrame:
-    """Return copy of df with a cluster_label column populated randomly."""
-    if num_clusters < 1:
+def generate_k_grid(base_k: int) -> list[int]:
+    """Return the [k-2, k-1, k, k+1, k+2] grid with each value >= 2."""
+    if base_k < 1:
         raise ValueError("num_clusters must be at least 1")
 
+    ks = [base_k - 2, base_k - 1, base_k, base_k + 1, base_k + 2]
+    return [max(2, value) for value in ks]
+
+
+def assign_random_clusters(num_rows: int, ks: list[int], seed: int | None = None) -> np.ndarray:
+    """Return matrix of random cluster assignments per k in ks."""
     rng = np.random.default_rng(seed)
-    labels = rng.integers(1, num_clusters + 1, size=len(df))
-    result = df.copy()
-    result["cluster_label"] = labels
-    return result
+    columns = [rng.integers(1, k + 1, size=num_rows) for k in ks]
+    return np.column_stack(columns)
 
 
 def infer_separator(data_path: Path) -> str:
@@ -84,10 +88,10 @@ def main(argv: list[str]) -> int:
         header=None,
         compression="gzip",
     )
-    clustered = assign_random_clusters(df, args.num_clusters, args.seed)
-    labels = clustered["cluster_label"].to_numpy(dtype=int).reshape(-1, 1)
-    header = np.array([[f"k={args.num_clusters}"]])
-    output_matrix = np.vstack([header, labels.astype(str)])
+    ks = generate_k_grid(args.num_clusters)
+    label_matrix = assign_random_clusters(len(df), ks, args.seed)
+    header = np.array([[f"k={k}" for k in ks]])
+    output_matrix = np.vstack([header, label_matrix.astype(str)])
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     output_file = args.output_dir / f"{args.name}_ks_range.labels.gz"
