@@ -88,7 +88,15 @@ def main(argv: list[str]) -> int:
         header=None,
         compression="gzip",
     )
-    ks = generate_k_grid(args.num_clusters)
+
+    base_k = args.num_clusters
+    if args.data_true_labels:
+        labels_df = pd.read_csv(args.data_true_labels, header=None, compression="gzip")
+        if labels_df.empty:
+            raise SystemExit("Provided --data.true_labels is empty.")
+        base_k = int(labels_df.iloc[:, 0].max())
+
+    ks = generate_k_grid(base_k)
     label_matrix = assign_random_clusters(len(df), ks, args.seed)
     header = np.array([[f"k={k}" for k in ks]])
     output_matrix = np.vstack([header, label_matrix.astype(str)])
