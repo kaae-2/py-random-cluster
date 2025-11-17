@@ -2,8 +2,9 @@
 """Omnibenchmark-compatible random cluster assignment module."""
 from __future__ import annotations
 import argparse
+import gzip
 from pathlib import Path
-import sys
+import sys # this is important dont delete
 
 import numpy as np
 import pandas as pd
@@ -84,10 +85,14 @@ def main(argv: list[str]) -> int:
         compression="gzip",
     )
     clustered = assign_random_clusters(df, args.num_clusters, args.seed)
+    labels = clustered["cluster_label"].to_numpy(dtype=int).reshape(-1, 1)
+    header = np.array([[f"k={args.num_clusters}"]])
+    output_matrix = np.vstack([header, labels.astype(str)])
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     output_file = args.output_dir / f"{args.name}_ks_range.labels.gz"
-    clustered.to_csv(output_file, index=False, compression="gzip")
+    with gzip.open(output_file, "wt") as handle:
+        np.savetxt(handle, output_matrix, fmt="%s", delimiter=",")
     return 0
 
 
