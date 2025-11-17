@@ -2,7 +2,6 @@
 """Omnibenchmark-compatible random cluster assignment module."""
 from __future__ import annotations
 import argparse
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -32,6 +31,13 @@ def infer_separator(data_path: Path) -> str:
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Assign random cluster labels to a gzipped matrix (Omnibenchmark module)."
+    )
+    parser.add_argument(
+        "--data.true_labels",
+        dest="data_true_labels",
+        required=False,
+        type=Path,
+        help="Optional gzipped labels file (ignored, accepted for compatibility).",
     )
     parser.add_argument(
         "--data.matrix",
