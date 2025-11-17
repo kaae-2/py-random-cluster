@@ -28,7 +28,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
             "loaded via pandas."
         )
     )
-    parser.add_argument("matrix", type=Path, help="Path to a CSV/TSV file containing the matrix")
+    parser.add_argument(
+        "matrix", type=Path, help="Path to a CSV/TSV file (optionally gzipped) containing the matrix"
+    )
     parser.add_argument("num_clusters", type=int, help="Number of clusters to sample from")
     parser.add_argument(
         "--sep",
@@ -48,6 +50,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "--output",
         type=Path,
         help="Optional path to write the matrix with cluster labels. Prints to stdout when omitted.",
+    )
+    parser.add_argument(
+        "--compression",
+        default="infer",
+        help=(
+            "Compression type understood by pandas.read_csv (e.g. 'gzip'). "
+            "Default: infer from filename"
+        ),
     )
     parser.add_argument(
         "--seed",
@@ -70,7 +80,7 @@ def main(argv: list[str]) -> int:
         except ValueError:  # pragma: no cover - arg parsing limits testability
             raise SystemExit("--header must be an integer or 'None'")
 
-    df = pd.read_csv(args.matrix, sep=args.sep, header=header)
+    df = pd.read_csv(args.matrix, sep=args.sep, header=header, compression=args.compression)
     clustered = assign_random_clusters(df, args.num_clusters, args.seed)
 
     if args.output:
