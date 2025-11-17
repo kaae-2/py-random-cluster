@@ -34,7 +34,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         description="Assign random cluster labels to a gzipped matrix (Omnibenchmark module)."
     )
     parser.add_argument(
-        "--data.matrix",
+        "--data",
         dest="data_matrix",
         required=True,
         type=Path,
