@@ -34,11 +34,18 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         description="Assign random cluster labels to a gzipped matrix (Omnibenchmark module)."
     )
     parser.add_argument(
-        "--data",
+        "--data.matrix",
         dest="data_matrix",
         required=True,
         type=Path,
         help="Path to a gzipped CSV/TSV matrix file provided by Omnibenchmark.",
+    )
+    parser.add_argument(
+        "--data.true_labels",
+        dest="data_true_labels",
+        required=False,
+        type=Path,
+        help="Unused placeholder for compatibility with pipelines supplying true labels.",
     )
     parser.add_argument(
         "--output_dir",
